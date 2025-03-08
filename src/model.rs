@@ -30,8 +30,6 @@ pub struct Role {
     pub role_id: i32,
     pub name: String,
     pub description: String,
-    pub created_at: OffsetDateTime,
-    pub updated_at: OffsetDateTime,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow)]

@@ -37,6 +37,7 @@ CREATE TABLE user_role (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     PRIMARY KEY (user_id, role_id)
 );
+CREATE INDEX user_role_role_id_idx ON user_role(role_id);
 
 -- Create a table to map users to tenants
 CREATE TABLE tenant_member (
@@ -45,6 +46,7 @@ CREATE TABLE tenant_member (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     PRIMARY KEY (tenant_id, user_id)
 );
+CREATE INDEX tenant_member_user_id_idx ON tenant_member(user_id);
 
 -- Create a table to map users to tenants and roles
 CREATE TABLE tenant_role (
@@ -54,6 +56,8 @@ CREATE TABLE tenant_role (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     PRIMARY KEY (tenant_id, user_id, role_id)
 );
+CREATE INDEX tenant_role_user_id_idx ON tenant_role(user_id);
+CREATE INDEX tenant_role_role_id_idx ON tenant_role(role_id);
 
 -- Insert default roles
 INSERT INTO role (name, description) VALUES
