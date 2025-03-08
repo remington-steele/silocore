@@ -9,9 +9,8 @@ pub async fn init_pool() -> Result<PgPool> {
     
     info!("Initializing application database connection pool");
     
-    // Parse the connection string and set the search_path
-    let options = PgConnectOptions::from_str(&database_url)?
-        .options([("search_path", "core,public")]);
+    // Parse the connection string
+    let options = PgConnectOptions::from_str(&database_url)?;
     
     let pool = PgPoolOptions::new()
         .max_connections(5)
@@ -29,9 +28,8 @@ pub async fn create_admin_connection() -> Result<PgConnection> {
     
     info!("Creating admin database connection for migrations");
     
-    // Parse the connection string and set the search_path
-    let options = PgConnectOptions::from_str(&database_admin_url)?
-        .options([("search_path", "core,public")]);
+    // Parse the connection string
+    let options = PgConnectOptions::from_str(&database_admin_url)?;
     
     let conn = PgConnection::connect_with(&options).await?;
     

@@ -57,7 +57,7 @@ JWT_ISSUER=silocore
 
 1. Clone the repository:
    ```
-   git clone https://github.com/yourusername/silocore.git
+   git clone https://github.com/yourusername/silogit
    cd silocore
    ```
 

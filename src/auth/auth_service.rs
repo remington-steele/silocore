@@ -58,7 +58,7 @@ impl AuthService {
     pub async fn authenticate(&self, email: &str, password: &str) -> Result<(AuthContext, String)> {
         // Fetch user from database
         let user = sqlx::query_as::<_, User>(
-            "SELECT * FROM core.usr WHERE email = $1 AND is_active = TRUE"
+            "SELECT * FROM usr WHERE email = $1 AND is_active = TRUE"
         )
         .bind(email)
         .fetch_optional(&self.db_pool)
@@ -96,8 +96,8 @@ impl AuthService {
         
         // Fetch user's system roles from database
         let roles: Vec<Role> = sqlx::query_as::<_, Role>(
-            "SELECT r.* FROM core.role r
-             JOIN core.user_role ur ON r.role_id = ur.role_id
+            "SELECT r.* FROM role r
+             JOIN user_role ur ON r.role_id = ur.role_id
              WHERE ur.user_id = $1"
         )
         .bind(user_id)
@@ -119,8 +119,8 @@ impl AuthService {
         
         // Fetch user's tenant roles from database
         let roles: Vec<Role> = sqlx::query_as::<_, Role>(
-            "SELECT r.* FROM core.role r
-             JOIN core.tenant_role tr ON r.role_id = tr.role_id
+            "SELECT r.* FROM role r
+             JOIN tenant_role tr ON r.role_id = tr.role_id
              WHERE tr.user_id = $1 AND tr.tenant_id = $2"
         )
         .bind(user_id)
@@ -143,7 +143,7 @@ impl AuthService {
         
         // Check if user is a member of the tenant
         let count: i64 = sqlx::query_scalar(
-            "SELECT COUNT(*) FROM core.tenant_member 
+            "SELECT COUNT(*) FROM tenant_member 
              WHERE user_id = $1 AND tenant_id = $2"
         )
         .bind(user_id)
@@ -159,7 +159,7 @@ impl AuthService {
         if let Some(tid) = tenant_id {
             // Check if tenant exists
             let tenant_exists: bool = sqlx::query_scalar(
-                "SELECT EXISTS(SELECT 1 FROM core.tenant WHERE tenant_id = $1)"
+                "SELECT EXISTS(SELECT 1 FROM tenant WHERE tenant_id = $1)"
             )
             .bind(tid)
             .fetch_one(&self.db_pool)
@@ -211,7 +211,7 @@ impl AuthService {
         
         // Insert the new user
         let user = sqlx::query_as::<_, User>(
-            "INSERT INTO core.usr (email, password_hash, given_name, family_name, is_active, created_at, updated_at)
+            "INSERT INTO usr (email, password_hash, given_name, family_name, is_active, created_at, updated_at)
              VALUES ($1, $2, $3, $4, TRUE, $5, $5)
              RETURNING *"
         )
@@ -231,7 +231,7 @@ impl AuthService {
     pub async fn assign_system_role(&self, user_id: i32, role_name: &str) -> Result<()> {
         // Get role ID from name
         let role_id: i32 = sqlx::query_scalar(
-            "SELECT role_id FROM core.role WHERE name = $1"
+            "SELECT role_id FROM role WHERE name = $1"
         )
         .bind(role_name)
         .fetch_one(&self.db_pool)
@@ -239,7 +239,7 @@ impl AuthService {
         
         // Insert user role
         sqlx::query(
-            "INSERT INTO core.user_role (user_id, role_id, created_at)
+            "INSERT INTO user_role (user_id, role_id, created_at)
              VALUES ($1, $2, $3)
              ON CONFLICT (user_id, role_id) DO NOTHING"
         )
@@ -257,7 +257,7 @@ impl AuthService {
     pub async fn add_user_to_tenant(&self, user_id: i32, tenant_id: i32) -> Result<()> {
         // Insert tenant member
         sqlx::query(
-            "INSERT INTO core.tenant_member (tenant_id, user_id, created_at)
+            "INSERT INTO tenant_member (tenant_id, user_id, created_at)
              VALUES ($1, $2, $3)
              ON CONFLICT (tenant_id, user_id) DO NOTHING"
         )
@@ -275,7 +275,7 @@ impl AuthService {
     pub async fn assign_tenant_role(&self, user_id: i32, tenant_id: i32, role_name: &str) -> Result<()> {
         // Get role ID from name
         let role_id: i32 = sqlx::query_scalar(
-            "SELECT role_id FROM core.role WHERE name = $1"
+            "SELECT role_id FROM role WHERE name = $1"
         )
         .bind(role_name)
         .fetch_one(&self.db_pool)
@@ -283,7 +283,7 @@ impl AuthService {
         
         // Insert tenant role
         sqlx::query(
-            "INSERT INTO core.tenant_role (tenant_id, user_id, role_id, created_at)
+            "INSERT INTO tenant_role (tenant_id, user_id, role_id, created_at)
              VALUES ($1, $2, $3, $4)
              ON CONFLICT (tenant_id, user_id, role_id) DO NOTHING"
         )
@@ -417,7 +417,7 @@ mod tests {
         
         // Create a test tenant
         let tenant_id: i32 = sqlx::query_scalar(
-            "INSERT INTO core.tenant (name, status, tier, created_at, updated_at)
+            "INSERT INTO tenant (name, status, tier, created_at, updated_at)
              VALUES ($1, 'active', 'gold', $2, $2)
              RETURNING tenant_id"
         )

@@ -54,7 +54,7 @@ async fn main() -> Result<()> {
     db::clear_tenant_context(&pool).await?;
     
     let tenant_exists: bool = sqlx::query_scalar(
-        "SELECT EXISTS(SELECT 1 FROM core.tenant WHERE name = 'Demo Tenant')"
+        "SELECT EXISTS(SELECT 1 FROM tenant WHERE name = 'Demo Tenant')"
     )
     .fetch_one(&pool)
     .await?;
@@ -64,7 +64,7 @@ async fn main() -> Result<()> {
         let now = OffsetDateTime::now_utc();
         
         sqlx::query_scalar(
-            "INSERT INTO core.tenant (name, status, tier, created_at, updated_at)
+            "INSERT INTO tenant (name, status, tier, created_at, updated_at)
              VALUES ('Demo Tenant', 'active', 'gold', $1, $1)
              RETURNING tenant_id"
         )
@@ -73,7 +73,7 @@ async fn main() -> Result<()> {
         .await?
     } else {
         info!("Demo tenant already exists");
-        sqlx::query_scalar("SELECT tenant_id FROM core.tenant WHERE name = 'Demo Tenant'")
+        sqlx::query_scalar("SELECT tenant_id FROM tenant WHERE name = 'Demo Tenant'")
             .fetch_one(&pool)
             .await?
     };
@@ -84,7 +84,7 @@ async fn main() -> Result<()> {
     let admin_email = "admin@example.com";
     
     let admin_exists: bool = sqlx::query_scalar(
-        "SELECT EXISTS(SELECT 1 FROM core.usr WHERE email = $1)"
+        "SELECT EXISTS(SELECT 1 FROM usr WHERE email = $1)"
     )
     .bind(admin_email)
     .fetch_one(&pool)
@@ -107,7 +107,7 @@ async fn main() -> Result<()> {
         admin.user_id
     } else {
         info!("Admin user already exists");
-        sqlx::query_scalar("SELECT user_id FROM core.usr WHERE email = $1")
+        sqlx::query_scalar("SELECT user_id FROM usr WHERE email = $1")
             .bind(admin_email)
             .fetch_one(&pool)
             .await?
@@ -119,7 +119,7 @@ async fn main() -> Result<()> {
     let tenant_user_email = "tenant_user@example.com";
     
     let tenant_user_exists: bool = sqlx::query_scalar(
-        "SELECT EXISTS(SELECT 1 FROM core.usr WHERE email = $1)"
+        "SELECT EXISTS(SELECT 1 FROM usr WHERE email = $1)"
     )
     .bind(tenant_user_email)
     .fetch_one(&pool)
@@ -145,14 +145,14 @@ async fn main() -> Result<()> {
         tenant_user.user_id
     } else {
         info!("Tenant user already exists");
-        let user_id: i32 = sqlx::query_scalar("SELECT user_id FROM core.usr WHERE email = $1")
+        let user_id: i32 = sqlx::query_scalar("SELECT user_id FROM usr WHERE email = $1")
             .bind(tenant_user_email)
             .fetch_one(&pool)
             .await?;
             
         // Ensure user is a member of the tenant
         let is_member: bool = sqlx::query_scalar(
-            "SELECT EXISTS(SELECT 1 FROM core.tenant_member WHERE user_id = $1 AND tenant_id = $2)"
+            "SELECT EXISTS(SELECT 1 FROM tenant_member WHERE user_id = $1 AND tenant_id = $2)"
         )
         .bind(user_id)
         .bind(tenant_id)
@@ -167,8 +167,8 @@ async fn main() -> Result<()> {
         // Ensure user has tenant super role
         let has_role: bool = sqlx::query_scalar(
             "SELECT EXISTS(
-                SELECT 1 FROM core.tenant_role tr
-                JOIN core.role r ON tr.role_id = r.role_id
+                SELECT 1 FROM tenant_role tr
+                JOIN role r ON tr.role_id = r.role_id
                 WHERE tr.user_id = $1 AND tr.tenant_id = $2 AND r.name = 'TENANT_SUPER'
             )"
         )
