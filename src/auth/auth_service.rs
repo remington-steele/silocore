@@ -359,8 +359,8 @@ mod tests {
         ).await.unwrap();
         
         assert_eq!(user.email, email);
-        assert_eq!(user.given_name, "Test");
-        assert_eq!(user.family_name, "User");
+        assert_eq!(user.first_name, "Test");
+        assert_eq!(user.last_name, "User");
         assert!(user.is_active);
         
         // Authenticate the user

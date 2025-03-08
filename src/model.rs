@@ -7,7 +7,6 @@ pub struct Tenant {
     pub tenant_id: i32,
     pub name: String,
     pub status: String,
-    pub tier: String,
     pub created_at: OffsetDateTime,
     pub updated_at: OffsetDateTime,
 }
@@ -18,8 +17,8 @@ pub struct User {
     pub email: String,
     #[serde(skip_serializing)]
     pub password_hash: String,
-    pub given_name: String,
-    pub family_name: String,
+    pub first_name: String,
+    pub last_name: String,
     pub is_active: bool,
     pub created_at: OffsetDateTime,
     pub updated_at: OffsetDateTime,

@@ -6,7 +6,6 @@ CREATE TABLE tenant (
     tenant_id SERIAL PRIMARY KEY,
     name VARCHAR(255) UNIQUE NOT NULL,
     status VARCHAR(64) NOT NULL CHECK (status IN ('active', 'suspended', 'disabled')),
-    tier VARCHAR(64) NOT NULL CHECK (tier IN ('gold', 'silver', 'bronze')),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -14,10 +13,10 @@ CREATE TABLE tenant (
 -- Create a table for users of the platform
 CREATE TABLE usr (
     user_id SERIAL PRIMARY KEY,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
-    given_name VARCHAR(255) NOT NULL CHECK (given_name <> ''),
-    family_name VARCHAR(255) NOT NULL CHECK (family_name <> ''),
+    email VARCHAR(255) NOT NULL UNIQUE CHECK (email <> ''),
+    password_hash VARCHAR(255) NOT NULL CHECK (password_hash <> ''),
+    first_name VARCHAR(255) NOT NULL CHECK (first_name <> ''),
+    last_name VARCHAR(255) NOT NULL CHECK (last_name <> ''),
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
